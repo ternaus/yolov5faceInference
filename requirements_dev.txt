@@ -6,4 +6,4 @@ isort==5.10.1
 mypy==0.961
 pre-commit==2.17.0
 pylint==3.0.0a4
-pytest==7.1.2
+pytest==7.0.1

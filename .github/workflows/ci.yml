@@ -28,8 +28,8 @@ jobs:
       - name: Run flake8
         run: flake8
       - name: Run pylint
-        run: pylint yolov5faceInference
+        run: pylint yolo5face
       - name: Run isort
-        run: isort --profile black yolov5faceInference
+        run: isort --profile black yolo5face
       - name: Run Mypy
-        run: mypy yolov5faceInference
+        run: mypy yolo5face

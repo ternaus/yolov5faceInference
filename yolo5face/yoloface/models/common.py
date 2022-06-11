@@ -6,8 +6,8 @@ import numpy as np
 import torch
 from torch import nn
 
-from yolov5faceInference.yoloface.utils.datasets import letterbox
-from yolov5faceInference.yoloface.utils.general import (
+from yolo5face.yoloface.utils.datasets import letterbox
+from yolo5face.yoloface.utils.general import (
     make_divisible,
     non_max_suppression,
     scale_coords,

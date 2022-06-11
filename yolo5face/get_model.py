@@ -4,7 +4,7 @@ from pathlib import Path
 
 from torch.hub import download_url_to_file
 
-from yolov5faceInference.yoloface.face_detector import YoloDetector
+from yolo5face.yoloface.face_detector import YoloDetector
 
 model = namedtuple("model", ["config", "weights", "model"])
 

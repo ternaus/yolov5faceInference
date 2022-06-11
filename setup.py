@@ -2,11 +2,11 @@ from pathlib import Path
 
 import setuptools
 
-PACKAGE_NAME = "yolov5faceInference"
+PACKAGE_NAME = "yolo5face"
 VERSION = "0.0.1"
 AUTHOR = "Vladimir Iglovikov"
 EMAIL = "iglovikov@gmail.com"
-DESCRIPTION = "Wrapper for yolov5FaceInference"
+DESCRIPTION = "Wrapper for yolo5face"
 GITHUB_URL = "https://github.com/ternaus/yolov5faceInference"
 
 parent_dir = Path(__file__).parent.absolute()
@@ -23,8 +23,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url=GITHUB_URL,
-    package_dir={"face_detection_pytorch": "."},
-    package_data={"": ["*net.pt"]},
+    package_dir={"yolo5face": "."},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

@@ -8,10 +8,10 @@ import numpy as np
 import torch
 from torch import nn
 
-from yolov5faceInference.yoloface.models.common import Conv
-from yolov5faceInference.yoloface.models.yolo import Model
-from yolov5faceInference.yoloface.utils.datasets import letterbox
-from yolov5faceInference.yoloface.utils.general import (
+from yolo5face.yoloface.models.common import Conv
+from yolo5face.yoloface.models.yolo import Model
+from yolo5face.yoloface.utils.datasets import letterbox
+from yolo5face.yoloface.utils.general import (
     check_img_size,
     non_max_suppression_face,
     scale_coords,

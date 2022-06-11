@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from yolov5faceInference.yoloface.models.common import Conv
+from yolo5face.yoloface.models.common import Conv
 
 
 class CrossConv(nn.Module):

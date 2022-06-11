@@ -6,7 +6,7 @@ import torch
 import yaml  # for torch hub
 from torch import nn
 
-from yolov5faceInference.yoloface.models.common import (
+from yolo5face.yoloface.models.common import (
     C3,
     NMS,
     SPP,
@@ -20,10 +20,10 @@ from yolov5faceInference.yoloface.models.common import (
     ShuffleV2Block,
     StemBlock,
 )
-from yolov5faceInference.yoloface.models.experimental import CrossConv, MixConv2d
-from yolov5faceInference.yoloface.utils.autoanchor import check_anchor_order
-from yolov5faceInference.yoloface.utils.general import make_divisible
-from yolov5faceInference.yoloface.utils.torch_utils import copy_attr, fuse_conv_and_bn
+from yolo5face.yoloface.models.experimental import CrossConv, MixConv2d
+from yolo5face.yoloface.utils.autoanchor import check_anchor_order
+from yolo5face.yoloface.utils.general import make_divisible
+from yolo5face.yoloface.utils.torch_utils import copy_attr, fuse_conv_and_bn
 
 
 class Detect(nn.Module):

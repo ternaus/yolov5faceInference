@@ -2,7 +2,7 @@ from deepdiff import DeepDiff
 from pytest import mark
 
 from tests.conftest import test_images as images
-from yolov5faceInference.get_model import get_model
+from yolo5face.get_model import get_model
 
 model = get_model("yolov5n", gpu=-1, target_size=512)
 

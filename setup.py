@@ -23,7 +23,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url=GITHUB_URL,
-    package_dir={"yolo5face": "."},
+    package_dir={"yolo5face": "yolo5face"},
+    packages=["yolo5face"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

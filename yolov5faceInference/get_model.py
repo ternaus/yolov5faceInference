@@ -35,7 +35,7 @@ def get_model(model_name: str, gpu: int, target_size: int, min_face: int = 24) -
 
     """
 
-    cache_path = Path("~/.torch.models").expanduser().absolute()
+    cache_path = Path("~/.torch/models").expanduser().absolute()
 
     cache_path.mkdir(exist_ok=True, parents=True)
 

@@ -3,6 +3,8 @@
 Wrapper over YoloV5Face for a better user experience.
 
 ```
+from yolo5face.get_model import get_model
+
 model = get_model("yolov5n", gpu=-1, target_size=512)
 ```
 

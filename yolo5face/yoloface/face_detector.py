@@ -103,7 +103,7 @@ class YoloDetector:
 
         for image_id, origimg in enumerate(origimgs):
             img_shape = origimg.shape
-            h, w = img_shape[:2]
+            image_height, image_width = img_shape[:2]
             gn = torch.tensor(img_shape)[[1, 0, 1, 0]]  # normalization gain whwh
             gn_lks = torch.tensor(img_shape)[[1, 0, 1, 0, 1, 0, 1, 0, 1, 0]]  # normalization gain landmarks
             det = pred[image_id].cpu()
@@ -112,11 +112,13 @@ class YoloDetector:
 
             for j in range(det.size()[0]):
                 box = (det[j, :4].view(1, 4) / gn).view(-1).tolist()
-                box = list(map(int, [box[0] * w, box[1] * h, box[2] * w, box[3] * h]))
+                box = list(
+                    map(int, [box[0] * image_width, box[1] * image_height, box[2] * image_width, box[3] * image_height])
+                )
                 if box[3] - box[1] < self.min_face:
                     continue
                 lm = (det[j, 5:15].view(1, 10) / gn_lks).view(-1).tolist()
-                lm = list(map(int, [i * w if j % 2 == 0 else i * h for j, i in enumerate(lm)]))
+                lm = list(map(int, [i * image_width if j % 2 == 0 else i * image_height for j, i in enumerate(lm)]))
                 lm = [lm[i : i + 2] for i in range(0, len(lm), 2)]
                 bboxes[image_id].append(box)
                 landmarks[image_id].append(lm)

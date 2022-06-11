@@ -74,7 +74,8 @@ disable=invalid-name,
         too-many-arguments,
         unsubscriptable-object,
         unidiomatic-typecheck,
-        no-member
+        no-member,
+        redefined-outer-name
 
 
 

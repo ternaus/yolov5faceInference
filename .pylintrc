@@ -73,7 +73,8 @@ disable=invalid-name,
         too-many-instance-attributes,
         too-many-arguments,
         unsubscriptable-object,
-        unidiomatic-typecheck
+        unidiomatic-typecheck,
+        no-member
 
 
 

@@ -96,8 +96,8 @@ class YoloDetector:
             bboxes: list of arrays with 4 coordinates of bounding boxes with format x1,y1,x2,y2.
             points: list of arrays with coordinates of 5 facial keypoints (eyes, nose, lips corners).
         """
-        bboxes = [[] for i in range(len(origimgs))]
-        landmarks = [[] for i in range(len(origimgs))]
+        bboxes = [[] for _ in range(len(origimgs))]
+        landmarks = [[] for _ in range(len(origimgs))]
 
         pred = non_max_suppression_face(pred, conf_thres, iou_thres)
 
@@ -135,10 +135,7 @@ class YoloDetector:
         """
         # Pass input images through face detector
 
-        if not isinstance(imgs, list):
-            images = [imgs]
-        else:
-            images = imgs
+        images = imgs if isinstance(imgs, list) else [imgs]
         origimgs = copy.deepcopy(images)
 
         images = self._preprocess(images)

@@ -1,0 +1,35 @@
+name: Python package
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ 3.6, 3.9, 3.10]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements_dev.txt
+      - name: Run black
+        run: black --check .
+      - name: Run flake8
+        run: flake8
+      - name: Run pylint
+        run: pylint yolov5faceInference
+      - name: Run isort
+        run: isort --profile black yolov5faceInference
+      - name: Run Mypy
+        run: mypy yolov5faceInference

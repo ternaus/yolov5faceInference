@@ -8,7 +8,7 @@ from setuptools import Command, find_packages, setup
 
 # Package meta-data.
 name = "yolo5face"
-description = "Unstructured set of the helper functions."
+description = "Wrapper over Yolo5Face for a more convenient inference."
 url = "https://github.com/ternaus/yolov5faceInference"
 email = "iglovikov@gmail.com"
 author = "Vladimir Iglovikov"

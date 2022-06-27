@@ -2,6 +2,13 @@
 
 ![](https://habrastorage.org/webt/gy/-1/xd/gy-1xdtfz3_i7xxt-nqzl4mfhuw.jpeg)
 
+### Installation
+
+```
+pip install -U yolo5face
+```
+
+### Inference
 ```
 from yolo5face.get_model import get_model
 

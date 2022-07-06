@@ -21,7 +21,9 @@ def get_file_name(url: str) -> str:
     return url.split("/")[-1]
 
 
-def get_model(model_name: str, gpu: int, target_size: int, min_face: int = 24) -> YoloDetector:
+def get_model(
+    model_name: str, gpu: int, target_size: int, min_face: int = 24, weights_path: str = "~/.torch/models"
+) -> YoloDetector:
     """
 
     Args:
@@ -30,12 +32,13 @@ def get_model(model_name: str, gpu: int, target_size: int, min_face: int = 24) -
         target_size: target size of smaller image axis (choose lower for faster work). e.g. 480, 720, 1080.
                     None for original resolution.
         min_face: minimal face size in pixels.
+        weights_path: Path on the disk to store weights
 
     Returns:
 
     """
 
-    cache_path = Path("~/.torch/models").expanduser().absolute()
+    cache_path = Path(weights_path).expanduser().absolute()
 
     cache_path.mkdir(exist_ok=True, parents=True)
 

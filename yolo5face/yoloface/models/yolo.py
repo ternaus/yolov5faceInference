@@ -21,7 +21,7 @@ from yolo5face.yoloface.models.common import (
 )
 from yolo5face.yoloface.utils.autoanchor import check_anchor_order
 from yolo5face.yoloface.utils.general import make_divisible
-from yolo5face.yoloface.utils.torch_utils import copy_attr, fuse_conv_and_bn
+from yolo5face.yoloface.utils.torch_utils import copy_attr
 
 
 class Detect(nn.Module):
@@ -131,15 +131,6 @@ class Model(nn.Module):
         for mi in m.m:  # from
             b = mi.bias.detach().view(m.na, -1).T  # conv.bias(255) to (3,85)
             print(("%6g Conv2d.bias:" + "%10.3g" * 6) % (mi.weight.shape[1], *b[:5].mean(1).tolist(), b[5:].mean()))
-
-    def fuse(self) -> "Model":  # fuse model Conv2d() + BatchNorm2d() layers
-        print("Fusing layers... ")
-        for m in self.model.modules():
-            if isinstance(m, Conv) and hasattr(m, "bn"):
-                m.conv = fuse_conv_and_bn(m.conv, m.bn)  # update conv
-                delattr(m, "bn")  # remove batchnorm
-                m.forward = m.fuseforward  # type: ignore[method-assign]
-        return self
 
     def autoshape(self) -> AutoShape:  # add autoShape module
         print("Adding autoShape... ")

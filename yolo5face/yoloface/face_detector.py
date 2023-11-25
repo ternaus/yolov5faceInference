@@ -44,12 +44,19 @@ class YoloDetector:
         self.detector = self.init_detector(weights_name, config_name)
 
     def init_detector(self, weights_name: str, config_name: str) -> nn.Module:
-        if isinstance(self.gpu, int) and self.gpu >= 0:
+        # Check for MPS availability (specific to macOS with Apple Silicon)
+        if torch.backends.mps.is_available():
+            print("Using MPS (Apple Metal Performance Shaders)")
+            self.device = torch.device("mps")
+        # Check for CUDA availability
+        elif isinstance(self.gpu, int) and self.gpu >= 0 and torch.cuda.is_available():
+            print("Using CUDA")
             os.environ["CUDA_VISIBLE_DEVICES"] = str(self.gpu)
-            self.device = "cuda:0"
+            self.device = torch.device("cuda:0")
         else:
+            print("Using CPU")
             os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-            self.device = "cpu"
+            self.device = torch.device("cpu")
 
         state_dict = torch.load(weights_name)
         detector = Model(cfg=config_name)

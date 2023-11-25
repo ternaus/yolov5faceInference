@@ -8,27 +8,32 @@ from yolo5face.yoloface.types import BoxType, KeypointType
 
 
 class YoloDetectorAggregator:
-    def __init__(self, target_sizes: int | list[int], **yolo_args: Any) -> None:
+    def __init__(self, **yolo_args: Any) -> None:
         self.yolo_args = yolo_args
-        self.target_sizes = target_sizes if isinstance(target_sizes, list) else [target_sizes]
+        self.detector = YoloDetector(**self.yolo_args)
 
     def nms(self, boxes: torch.Tensor, scores: torch.Tensor, iou_threshold: float = 0.5) -> torch.Tensor:
         """Applies Non-Maximum Suppression (NMS) to filter boxes."""
         return torch.ops.torchvision.nms(boxes.type(torch.float), scores.type(torch.float), iou_threshold)
 
-    def __call__(self, image: np.ndarray) -> tuple[list[BoxType], list[KeypointType], list[float]]:
+    def __call__(
+        self,
+        image: np.ndarray,
+        target_size: int | list[int],
+    ) -> tuple[list[BoxType], list[KeypointType], list[float]]:
         all_boxes, all_keypoints, all_scores = [], [], []
 
-        for size in self.target_sizes:
-            detector = YoloDetector(target_size=size, **self.yolo_args)
+        if isinstance(target_size, int):
+            target_size = [target_size]
 
-            boxes, keypoints, scores = detector(image)
+        for size in target_size:
+            boxes, keypoints, scores = self.detector(image, size)
 
             all_boxes.extend(boxes)
             all_keypoints.extend(keypoints)
             all_scores.extend(scores)
 
-        if len(self.target_sizes) > 1:
+        if len(target_size) > 1:
             # Perform aggregation with NMS if multiple target sizes are used
             return self.aggregate_predictions(all_boxes, all_keypoints, all_scores)
 

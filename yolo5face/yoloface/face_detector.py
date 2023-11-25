@@ -24,20 +24,15 @@ class YoloDetector:
         config_name: str,
         device: torch.device,
         min_face: int,
-        target_size: int | None = None,
     ):
         """
         weights_name: name of file with network weights in weights/ folder.
         config_name: name of .yaml config with network configuration from models/ folder.
         gpu : gpu number (int) or -1 or string for cpu.
         min_face : minimal face size in pixels.
-        target_size : target size of smaller image axis (choose lower for faster work). e.g. 480, 720, 1080.
-                    None for original resolution.
-
         """
         self._class_path = Path(__file__).parent.absolute()
         self.device = device
-        self.target_size = target_size
         self.min_face = min_face
 
         self.detector = self.init_detector(weights_name, config_name)
@@ -48,17 +43,16 @@ class YoloDetector:
         detector.load_state_dict(state_dict)
         return detector.to(self.device).float().eval()
 
-    def _preprocess(self, imgs: list[np.ndarray]) -> torch.Tensor:
+    def _preprocess(self, imgs: list[np.ndarray], target_size: int) -> torch.Tensor:
         """
         Preprocessing image before passing through the network. Resize and conversion to torch tensor.
         """
         pp_imgs = []
         for img in imgs:
             h0, w0 = img.shape[:2]  # orig hw
-            if self.target_size:
-                r = self.target_size / min(h0, w0)  # resize image to img_size
-                if r < 1:
-                    img = cv2.resize(img, (int(w0 * r), int(h0 * r)), interpolation=cv2.INTER_AREA)
+            r = target_size / min(h0, w0)  # resize image to img_size
+            if r < 1:
+                img = cv2.resize(img, (int(w0 * r), int(h0 * r)), interpolation=cv2.INTER_AREA)
 
             imgsz = check_img_size(max(img.shape[:2]), s=int(self.detector.stride.max()))  # check img_size
             img = letterbox(img, new_shape=imgsz)[0]
@@ -120,6 +114,7 @@ class YoloDetector:
     def predict(
         self,
         imgs: np.ndarray | list[np.ndarray],
+        target_size: int,
         conf_thres: float = 0.7,
         iou_thres: float = 0.5,
     ) -> tuple[list[BoxType], list[KeypointType], list[float]]:
@@ -138,7 +133,7 @@ class YoloDetector:
 
         origimgs = copy.deepcopy(images)
 
-        images = self._preprocess(images)
+        images = self._preprocess(images, target_size)
 
         with torch.inference_mode():  # change this with torch.no_grad() for pytorch <1.8 compatibility
             pred = self.detector(images)[0]
@@ -148,7 +143,8 @@ class YoloDetector:
     def __call__(
         self,
         imgs: np.ndarray | list[np.ndarray],
+        target_size: int,
         conf_thres: float = 0.7,
         iou_thres: float = 0.5,
     ) -> tuple[list[BoxType], list[KeypointType], list[float]]:
-        return self.predict(imgs, conf_thres, iou_thres)
+        return self.predict(imgs, target_size, conf_thres, iou_thres)

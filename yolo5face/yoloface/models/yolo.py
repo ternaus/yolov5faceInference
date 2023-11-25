@@ -49,19 +49,22 @@ class Detect(nn.Module):
                     self.grid[i] = self._make_grid(nx, ny).to(x[i].device)
 
                 stride_i = self.stride[i]  # type: ignore[index]
+                device = x[i].device
+                grid_i = self.grid[i].to(device)
+                anchor_grid_i = self.anchor_grid[i]
 
                 y = torch.full_like(x[i], 0)
                 y[..., [0, 1, 2, 3, 4, 15]] = x[i][..., [0, 1, 2, 3, 4, 15]].sigmoid()
                 y[..., 5:15] = x[i][..., 5:15]
 
-                y[..., 0:2] = (y[..., 0:2] * 2.0 - 0.5 + self.grid[i].to(x[i].device)) * stride_i  # xy
-                y[..., 2:4] = (y[..., 2:4] * 2) ** 2 * self.anchor_grid[i]  # wh
+                y[..., 0:2] = (y[..., 0:2] * 2.0 - 0.5 + grid_i) * stride_i  # xy
+                y[..., 2:4] = (y[..., 2:4] * 2) ** 2 * anchor_grid_i  # wh
 
-                y[..., 5:7] = y[..., 5:7] * self.anchor_grid[i] + self.grid[i].to(x[i].device) * stride_i
-                y[..., 7:9] = y[..., 7:9] * self.anchor_grid[i] + self.grid[i].to(x[i].device) * stride_i
-                y[..., 9:11] = y[..., 9:11] * self.anchor_grid[i] + self.grid[i].to(x[i].device) * stride_i
-                y[..., 11:13] = y[..., 11:13] * self.anchor_grid[i] + self.grid[i].to(x[i].device) * stride_i
-                y[..., 13:15] = y[..., 13:15] * self.anchor_grid[i] + self.grid[i].to(x[i].device) * stride_i
+                y[..., 5:7] = y[..., 5:7] * anchor_grid_i + grid_i * stride_i
+                y[..., 7:9] = y[..., 7:9] * anchor_grid_i + grid_i * stride_i
+                y[..., 9:11] = y[..., 9:11] * anchor_grid_i + grid_i * stride_i
+                y[..., 11:13] = y[..., 11:13] * anchor_grid_i + grid_i * stride_i
+                y[..., 13:15] = y[..., 13:15] * anchor_grid_i + grid_i * stride_i
 
                 z.append(y.view(bs, -1, self.no))
 

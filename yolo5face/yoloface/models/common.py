@@ -27,7 +27,7 @@ def channel_shuffle(x: torch.Tensor, groups: int) -> torch.Tensor:
 
 
 def dwconv(c1: int, c2: int, k: int = 1, s: int = 1, act: bool = True) -> nn.Module:
-    # existing implementation
+    # depthwise convolution
     return Conv(c1, c2, k, s, g=math.gcd(c1, c2), act=act)
 
 

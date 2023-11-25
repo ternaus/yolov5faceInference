@@ -25,7 +25,7 @@ model = get_model("yolov5n", gpu=-1, target_size=512, min_face=24)
 image = cv2.imread(<IMAGE_PATH>)
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-boxes, key_points = model(image)
+boxes, key_points, scores = model(image)
 ```
 
 * **gpu**: Specify the GPU number, `-1` or `cpu` for CPU usage.

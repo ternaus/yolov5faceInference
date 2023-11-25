@@ -1,5 +1,4 @@
 import copy
-import os
 from pathlib import Path
 
 import cv2
@@ -21,10 +20,10 @@ from yolo5face.yoloface.utils.general import (
 class YoloDetector:
     def __init__(
         self,
-        weights_name: str = "yolov5n_state_dict.pt",
-        config_name: str = "yolov5n.yaml",
-        gpu: int | str = 0,
-        min_face: int = 100,
+        weights_name: str,
+        config_name: str,
+        device: torch.device,
+        min_face: int,
         target_size: int | None = None,
     ):
         """
@@ -37,27 +36,13 @@ class YoloDetector:
 
         """
         self._class_path = Path(__file__).parent.absolute()
-        self.gpu = gpu
+        self.device = device
         self.target_size = target_size
         self.min_face = min_face
 
         self.detector = self.init_detector(weights_name, config_name)
 
     def init_detector(self, weights_name: str, config_name: str) -> nn.Module:
-        # Check for MPS availability (specific to macOS with Apple Silicon)
-        if torch.backends.mps.is_available():
-            print("Using MPS (Apple Metal Performance Shaders)")
-            self.device = torch.device("mps")
-        # Check for CUDA availability
-        elif isinstance(self.gpu, int) and self.gpu >= 0 and torch.cuda.is_available():
-            print("Using CUDA")
-            os.environ["CUDA_VISIBLE_DEVICES"] = str(self.gpu)
-            self.device = torch.device("cuda:0")
-        else:
-            print("Using CPU")
-            os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-            self.device = torch.device("cpu")
-
         state_dict = torch.load(weights_name)
         detector = Model(cfg=config_name)
         detector.load_state_dict(state_dict)

@@ -20,7 +20,7 @@ Use the wrapper to quickly deploy face detection in your projects:
 from yolo5face.get_model import get_model
 import cv2
 
-model = get_model("yolov5n", gpu=-1, target_size=512, min_face=24)
+model = get_model("yolov5n", device=-1, target_size=512, min_face=24)
 
 image = cv2.imread(<IMAGE_PATH>)
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -28,7 +28,7 @@ image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 boxes, key_points, scores = model(image)
 ```
 
-* **gpu**: Specify the GPU number, `-1` or `cpu` for CPU usage.
+* **device**: Specify device `cpu`, `cuda`, `mps` or integer for the number of cuda device.
 * **target_size**: The minimum size of the target image for detection.
 * **min_face**: The minimum face size in pixels. Faces smaller than this value will be ignored.
 
@@ -41,7 +41,7 @@ To use this feature:
 ```bash
 from yolo5face.get_model import get_model
 
-model = get_model("yolov5n", gpu=-1, target_size=[320, 640, 1280], min_face=24)
+model = get_model("yolov5n", device=-1, target_size=[320, 640, 1280], min_face=24)
 
 # Aggregate detections over the specified target sizes
 boxes, key_points, scores = aggregator(image)

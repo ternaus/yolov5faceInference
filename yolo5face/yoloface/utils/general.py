@@ -12,7 +12,7 @@ MAX_NMS_COMPARISONS = 3000
 
 def check_img_size(img_size: int, s: int = 32) -> int:
     # Verify img_size is a multiple of stride s
-    new_size = make_divisible(img_size, int(s))  # ceil gs-multiple
+    new_size = make_divisible(img_size, s)  # ceil gs-multiple
     if new_size != img_size:
         print(f"WARNING: --img-size {img_size:g} must be multiple of max stride {s:g}, updating to {new_size:g}")
     return new_size

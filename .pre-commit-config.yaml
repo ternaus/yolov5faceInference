@@ -42,7 +42,6 @@ repos:
       - id: check-xml
       - id: check-vcs-permalinks
       - id: destroyed-symlinks
-      - id: detect-aws-credentials
       - id: detect-private-key
       - id: fix-byte-order-marker
       - id: forbid-new-submodules

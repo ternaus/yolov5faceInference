@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import NamedTuple
 
+import torch
 from torch.hub import download_url_to_file
 
 from yolo5face.yoloface.YoloDetectorAggregator import YoloDetectorAggregator
@@ -26,7 +27,7 @@ def get_file_name(url: str) -> str:
 
 def get_model(
     model_name: str,
-    gpu: int,
+    device: str,
     target_size: int,
     min_face: int = 24,
     weights_path: str = "~/.torch/models",
@@ -46,10 +47,19 @@ def get_model(
     if not config_file_path.exists():
         download_url_to_file(config_name, config_file_path.as_posix(), progress=True)
 
+    if (
+        (torch.backends.mps.is_available() and device == "mps")
+        or (device == "cuda" or isinstance(device, int))
+        and torch.cuda.is_available()
+    ):
+        device = torch.device(device)
+    else:
+        device = torch.device("cpu")
+
     return YoloDetectorAggregator(
         target_sizes=target_size,
         min_face=min_face,
-        gpu=gpu,
+        device=device,
         weights_name=weight_file_path,
         config_name=config_file_path,
     )

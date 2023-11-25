@@ -82,15 +82,17 @@ class YoloDetector:
         pred: torch.Tensor,
         conf_thres: float,
         iou_thres: float,
-    ) -> tuple[list[BoxType], list[KeypointType]]:
+    ) -> tuple[list[BoxType], list[KeypointType], list[float]]:
         """
         Postprocessing of raw pytorch model output.
         Returns:
             bboxes: list of arrays with 4 coordinates of bounding boxes with format x1,y1,x2,y2.
             points: list of arrays with coordinates of 5 facial keypoints (eyes, nose, lips corners).
+            scores: list of objectness confidence scores for each detection.
         """
         bboxes: list = [[] for _ in range(len(origimgs))]
         landmarks: list = [[] for _ in range(len(origimgs))]
+        scores: list = [[] for _ in range(len(origimgs))]  # Initialize list for scores
 
         pred = non_max_suppression_face(pred, conf_thres, iou_thres)
 
@@ -104,6 +106,7 @@ class YoloDetector:
             scale_coords_landmarks(imgs[image_id].shape[1:], det[:, 5:15], img_shape).round()
 
             for j in range(det.size()[0]):
+                score = det[j, 4].item()  # Objectness confidence score
                 box = (det[j, :4].view(1, 4) / gn).view(-1).tolist()
                 box = list(
                     map(
@@ -118,14 +121,16 @@ class YoloDetector:
                 lm = [lm[i : i + 2] for i in range(0, len(lm), 2)]
                 bboxes[image_id].append(box)
                 landmarks[image_id].append(lm)
-        return bboxes, landmarks
+                scores[image_id].append(score)
+
+        return bboxes[0], landmarks[0], scores[0]
 
     def predict(
         self,
         imgs: np.ndarray | list[np.ndarray],
         conf_thres: float = 0.7,
         iou_thres: float = 0.5,
-    ) -> tuple[list[BoxType], list[KeypointType]]:
+    ) -> tuple[list[BoxType], list[KeypointType], list[float]]:
         """
         Get bbox coordinates and keypoints of faces on original image.
         Params:
@@ -153,5 +158,5 @@ class YoloDetector:
         imgs: np.ndarray | list[np.ndarray],
         conf_thres: float = 0.7,
         iou_thres: float = 0.5,
-    ) -> tuple[list[BoxType], list[KeypointType]]:
+    ) -> tuple[list[BoxType], list[KeypointType], list[float]]:
         return self.predict(imgs, conf_thres, iou_thres)

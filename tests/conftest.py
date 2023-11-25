@@ -43,6 +43,20 @@ test_images = {
                 "keypoints": [[916, 260], [954, 270], [922, 290], [915, 303], [948, 311]],
             },
         ],
+        "faces_aggregate": [
+            {
+                "box": [349, 123, 467, 278],
+                "keypoints": [[391, 183], [442, 187], [420, 220], [386, 230], [438, 234]],
+            },
+            {
+                "box": [598, 159, 704, 292],
+                "keypoints": [[632, 214], [678, 213], [656, 241], [635, 260], [673, 259]],
+            },
+            {
+                "box": [897, 212, 1003, 344],
+                "keypoints": [[913, 261], [955, 271], [920, 294], [915, 304], [948, 312]],
+            },
+        ],
     },
     "with_no_faces": {
         "image": image_with_no_face,
@@ -51,5 +65,6 @@ test_images = {
         "gcp_path": "gs://monday-frontend-test.appspot.com/test/images/user_id/no_face.jpg",
         "image_path": image_with_no_face_path,
         "faces": [{"box": [], "keypoints": []}],
+        "faces_aggregate": [{"box": [], "keypoints": []}],
     },
 }

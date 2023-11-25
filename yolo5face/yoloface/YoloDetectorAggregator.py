@@ -16,42 +16,45 @@ class YoloDetectorAggregator:
         """Applies Non-Maximum Suppression (NMS) to filter boxes."""
         return torch.ops.torchvision.nms(boxes.type(torch.float), scores.type(torch.float), iou_threshold)
 
-    def __call__(self, image: np.ndarray) -> tuple[BoxType, KeypointType]:
-        all_boxes, all_keypoints = [], []
+    def __call__(self, image: np.ndarray) -> tuple[list[BoxType], list[KeypointType], list[float]]:
+        all_boxes, all_keypoints, all_scores = [], [], []
 
         for size in self.target_sizes:
             detector = YoloDetector(target_size=size, **self.yolo_args)
 
-            boxes, keypoints = detector(image)
+            boxes, keypoints, scores = detector(image)
 
             all_boxes.extend(boxes)
             all_keypoints.extend(keypoints)
-
-            print(all_boxes, all_keypoints)
+            all_scores.extend(scores)
 
         if len(self.target_sizes) > 1:
             # Perform aggregation with NMS if multiple target sizes are used
-            return self.aggregate_predictions(all_boxes, all_keypoints)
+            return self.aggregate_predictions(all_boxes, all_keypoints, all_scores)
 
-        return all_boxes[0], all_keypoints[0]
+        return all_boxes, all_keypoints, all_scores
 
     def aggregate_predictions(
         self,
         all_boxes: list[BoxType],
         all_keypoints: list[KeypointType],
-    ) -> tuple[BoxType, KeypointType]:
+        all_scores: list[float],
+    ) -> tuple[list[BoxType], list[KeypointType], list[float]]:
         if not all_boxes or not all(list(all_boxes)):
             # No boxes to process
-            return [], []
+            return [], [], []
 
-        boxes_tensor = torch.tensor([box for sublist in all_boxes for box in sublist])
-        scores = torch.ones(len(boxes_tensor))
+        boxes_tensor = torch.tensor(all_boxes)
+        scores_tensor = torch.tensor(all_scores)
+
+        print(boxes_tensor.shape, scores_tensor.shape)
 
         # Apply NMS
-        keep_indices = self.nms(boxes_tensor, scores)
+        keep_indices = self.nms(boxes_tensor, scores_tensor)
 
-        # Filter boxes and keypoints
+        # Filter boxes, keypoints, and scores
         filtered_boxes = boxes_tensor[keep_indices].tolist()
-        filtered_keypoints = [all_keypoints[0][i] for i in keep_indices]
+        filtered_keypoints = [all_keypoints[i] for i in keep_indices]
+        filtered_scores = scores_tensor[keep_indices].tolist()
 
-        return filtered_boxes, filtered_keypoints
+        return filtered_boxes, filtered_keypoints, filtered_scores

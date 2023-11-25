@@ -10,12 +10,12 @@ model = get_model("yolov5n", gpu=-1, target_size=[512, 1024])
 @mark.parametrize(
     ["image", "face"],
     [
-        (images[image_name]["image"], images[image_name]["faces"])
+        (images[image_name]["image"], images[image_name]["faces_aggregate"])
         for image_name in ["with_faces_rescaled", "with_no_faces"]
     ],
 )
 def test_face_detection(image, face):
-    boxes, points = model(image)
+    boxes, points = model(image)[:2]
 
     for box_id, box in enumerate(boxes):
         assert len(DeepDiff(box, face[box_id]["box"])) == 0

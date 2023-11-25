@@ -47,8 +47,6 @@ class YoloDetectorAggregator:
         boxes_tensor = torch.tensor(all_boxes)
         scores_tensor = torch.tensor(all_scores)
 
-        print(boxes_tensor.shape, scores_tensor.shape)
-
         # Apply NMS
         keep_indices = self.nms(boxes_tensor, scores_tensor)
 

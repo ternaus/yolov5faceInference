@@ -30,7 +30,7 @@ class Detect(nn.Module):
 
         self.nl = len(anchors)  # number of detection layers
         self.na = len(anchors[0]) // 2  # number of anchors
-        self.grid = [torch.zeros(1)] * self.nl  # init grid
+
         a = torch.tensor(anchors).float().view(self.nl, -1, 2)
         self.register_buffer("anchors", a)  # shape(nl,na,2)
         self.register_buffer("anchor_grid", a.clone().view(self.nl, 1, -1, 1, 1, 2))  # shape(nl,1,na,1,1,2)
@@ -38,6 +38,7 @@ class Detect(nn.Module):
 
     def forward(self, x: list[torch.Tensor]) -> tuple[list[torch.Tensor], list[torch.Tensor]] | list[torch.Tensor]:
         z = []  # inference output
+        grid = [torch.zeros(1)] * self.nl  # init grid
 
         for i in range(self.nl):
             x[i] = self.m[i](x[i])  # conv
@@ -45,12 +46,12 @@ class Detect(nn.Module):
             x[i] = x[i].view(bs, self.na, self.no, ny, nx).permute(0, 1, 3, 4, 2).contiguous()
 
             if not self.training:  # inference
-                if self.grid[i].shape[2:4] != x[i].shape[2:4]:
-                    self.grid[i] = self._make_grid(nx, ny).to(x[i].device)
+                if grid[i].shape[2:4] != x[i].shape[2:4]:
+                    grid[i] = self._make_grid(nx, ny).to(x[i].device)
 
                 stride_i = self.stride[i]  # type: ignore[index]
                 device = x[i].device
-                grid_i = self.grid[i].to(device)
+                grid_i = grid[i].to(device)
                 anchor_grid_i = self.anchor_grid[i]
 
                 y = torch.full_like(x[i], 0)

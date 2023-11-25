@@ -44,7 +44,7 @@ from yolo5face.get_model import get_model
 model = get_model("yolov5n", device=-1, target_size=[320, 640, 1280], min_face=24)
 
 # Aggregate detections over the specified target sizes
-boxes, key_points, scores = aggregator(image)
+boxes, key_points, scores = model(image)
 ```
 
 This approach leverages multiple detections at different scales, followed by Non-Maximum Suppression, to provide a more comprehensive set of detections.

@@ -4,7 +4,7 @@ from pytest import mark
 from tests.conftest import test_images as images
 from yolo5face.get_model import get_model
 
-model = get_model("yolov5n", device="cpu", target_size=[512, 1024])
+model = get_model("yolov5n", device="cpu")
 
 
 @mark.parametrize(
@@ -15,7 +15,7 @@ model = get_model("yolov5n", device="cpu", target_size=[512, 1024])
     ],
 )
 def test_face_detection(image, face):
-    boxes, points = model(image)[:2]
+    boxes, points = model(image, target_size=[512, 1024])[:2]
 
     for box_id, box in enumerate(boxes):
         assert len(DeepDiff(box, face[box_id]["box"])) == 0

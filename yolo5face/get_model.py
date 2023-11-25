@@ -28,7 +28,6 @@ def get_file_name(url: str) -> str:
 def get_model(
     model_name: str,
     device: str,
-    target_size: int,
     min_face: int = 24,
     weights_path: str = "~/.torch/models",
 ) -> YoloDetectorAggregator:
@@ -57,7 +56,6 @@ def get_model(
         device = torch.device("cpu")
 
     return YoloDetectorAggregator(
-        target_sizes=target_size,
         min_face=min_face,
         device=device,
         weights_name=weight_file_path,

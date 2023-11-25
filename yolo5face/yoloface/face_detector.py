@@ -66,7 +66,7 @@ class YoloDetector:
             if self.target_size:
                 r = self.target_size / min(h0, w0)  # resize image to img_size
                 if r < 1:
-                    img = cv2.resize(img, (int(w0 * r), int(h0 * r)), interpolation=cv2.INTER_LINEAR)
+                    img = cv2.resize(img, (int(w0 * r), int(h0 * r)), interpolation=cv2.INTER_AREA)
 
             imgsz = check_img_size(max(img.shape[:2]), s=int(self.detector.stride.max()))  # check img_size
             img = letterbox(img, new_shape=imgsz)[0]

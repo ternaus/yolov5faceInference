@@ -94,7 +94,6 @@ def non_max_suppression_face(
          detections with shape: nx6 (x1, y1, x2, y2, conf, cls)
     """
 
-    nc = prediction.shape[2] - 15  # number of classes
     xc = prediction[..., 4] > conf_thres  # candidates
 
     # Settings
@@ -102,7 +101,6 @@ def non_max_suppression_face(
     max_wh = 4096
     time_limit = 10.0  # seconds to quit after
     redundant = True  # require redundant detections
-    multi_label = nc > 1  # multiple labels per box (adds 0.5ms/img)
     merge = False  # use merge-NMS
 
     t = time.time()
@@ -122,12 +120,9 @@ def non_max_suppression_face(
         box = xywh2xyxy(x[:, :4])
 
         # Detections matrix nx6 (xyxy, conf, landmarks, cls)
-        if multi_label:
-            i, j = (x[:, 15:] > conf_thres).nonzero(as_tuple=False).T
-            x = torch.cat((box[i], x[i, j + 15, None], x[:, 5:15], j[:, None].float()), 1)
-        else:  # best class only
-            conf, j = x[:, 15:].max(1, keepdim=True)
-            x = torch.cat((box, conf, x[:, 5:15], j.float()), 1)[conf.view(-1) > conf_thres]
+
+        conf, j = x[:, 15:].max(1, keepdim=True)
+        x = torch.cat((box, conf, x[:, 5:15], j.float()), 1)[conf.view(-1) > conf_thres]
 
         # If none remain process next image
         n = x.shape[0]  # number of boxes

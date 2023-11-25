@@ -150,9 +150,9 @@ def non_max_suppression_face(
 
 
 def scale_coords_landmarks(
-    source_shape: ShapeLike,  # (height, width)
+    source_shape: ShapeLike,
     coords: TensorLike,
-    target_shape: ShapeLike,  # (height, width)
+    target_shape: ShapeLike,
 ) -> TensorLike:
     """
     Rescales coordinates from one image shape to another.

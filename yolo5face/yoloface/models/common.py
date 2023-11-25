@@ -1,15 +1,10 @@
-# This file contains modules common to various models
-
 import math
 
 import numpy as np
 import torch
 from torch import nn
 
-from yolo5face.yoloface.utils.general import (
-    # non_max_suppression,
-    xyxy2xywh,
-)
+from yolo5face.yoloface.utils.general import xyxy2xywh
 
 
 def autopad(k: int | list[int], p: int | list[int] | None = None) -> int | list[int]:

@@ -130,3 +130,10 @@ dmypy.json
 
 # Idea
 .idea/
+
+weights/
+
+.ipynb_checkpoints/
+*.ipynb
+
+.ruff_cache/

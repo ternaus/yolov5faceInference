@@ -149,64 +149,6 @@ def non_max_suppression_face(
     return output
 
 
-def non_max_suppression(
-    prediction: TensorLike,
-    conf_thres: float = 0.25,
-    iou_thres: float = 0.45,
-) -> list[TensorLike]:
-    xc = prediction[..., 4] > conf_thres  # candidates
-
-    # Settings
-    # (pixels) maximum box width and height
-    max_wh = 4096
-    time_limit = 10.0  # seconds to quit after
-
-    merge = False  # use merge-NMS
-
-    t = time.time()
-    output = [torch.zeros((0, 6), device=prediction.device)] * prediction.shape[0]
-    for xi, x in enumerate(prediction):  # image index, image inference
-        x = x[xc[xi]]  # confidence
-        # If none remain process next image
-        if not x.shape[0]:
-            continue
-
-        # Compute conf
-        x[:, 5:] *= x[:, 4:5]  # conf = obj_conf * cls_conf
-
-        # Box (center x, center y, width, height) to (x1, y1, x2, y2)
-        box = xywh2xyxy(x[:, :4])
-
-        conf, j = x[:, 5:].max(1, keepdim=True)
-        x = torch.cat((box, conf, j.float()), 1)[conf.view(-1) > conf_thres]
-
-        # Check shape
-        num_boxes = x.shape[0]  # number of boxes
-        if not num_boxes:  # no boxes
-            continue
-
-        x = x[x[:, 4].argsort(descending=True)]  # sort by confidence
-
-        # Batched NMS
-        c = x[:, 5:6] * max_wh  # classes
-        boxes, scores = x[:, :4] + c, x[:, 4]  # boxes (offset by class), scores
-        i = torchvision.ops.nms(boxes, scores, iou_thres)  # NMS
-        if merge and (1 < num_boxes < MAX_NMS_COMPARISONS):  # Merge NMS (boxes merged using weighted mean)
-            # update boxes as boxes(i,4) = weights(i,n) * boxes(n,4)
-            iou = box_iou(boxes[i], boxes) > iou_thres  # iou matrix
-            weights = iou * scores[None]  # box weights
-            x[i, :4] = torch.mm(weights, x[:, :4]).float() / weights.sum(1, keepdim=True)  # merged boxes
-
-            i = i[iou.sum(1) > 1]  # require redundancy
-
-        output[xi] = x[i]
-        if (time.time() - t) > time_limit:
-            print(f"WARNING: NMS time limit {time_limit}s exceeded")
-            break  # time limit exceeded
-
-    return output
-
-
 def scale_coords_landmarks(
     source_shape: ShapeLike,  # (height, width)
     coords: TensorLike,

@@ -1,16 +1,13 @@
 # This file contains modules common to various models
 
 import math
-from typing import cast
 
 import numpy as np
 import torch
 from torch import nn
 
-from yolo5face.yoloface.utils.datasets import letterbox
 from yolo5face.yoloface.utils.general import (
-    non_max_suppression,
-    scale_coords,
+    # non_max_suppression,
     xyxy2xywh,
 )
 
@@ -235,79 +232,6 @@ class Concat(nn.Module):
 
     def forward(self, x: list[torch.Tensor]) -> torch.Tensor:
         return torch.cat(x, self.d)
-
-
-class NMS(nn.Module):
-    # Non-Maximum Suppression (NMS) module
-    conf = 0.25  # confidence threshold
-    iou = 0.45  # IoU threshold
-
-    def forward(self, x: list[torch.Tensor]) -> list[torch.Tensor]:
-        return non_max_suppression(x[0], conf_thres=self.conf, iou_thres=self.iou)
-
-
-class AutoShape(nn.Module):
-    # input-robust model wrapper for passing cv2/np/PIL/torch inputs. Includes preprocessing, inference and NMS
-    img_size = 640  # inference size (pixels)
-    conf = 0.25  # NMS confidence threshold
-    iou = 0.45  # NMS IoU threshold
-
-    def __init__(self, model: nn.Module):
-        super().__init__()
-        self.model = model.eval()
-
-    def autoshape(self) -> "AutoShape":
-        print("autoShape already enabled, skipping... ")  # model already converted to model.autoshape()
-        return self
-
-    def forward(
-        self,
-        imgs: list[np.ndarray] | np.ndarray | torch.Tensor,
-        size: int = 640,
-        augment: bool = False,
-        profile: bool = False,
-    ) -> list[torch.Tensor]:
-        # Inference from various sources. For height=720, width=1280, RGB images example inputs are:
-        #   OpenCV:          = cv2.imread('image.jpg')[:,:,::-1]  # HWC BGR to RGB x(720,1280,3)
-        #   PIL:             = Image.open('image.jpg')  # HWC x(720,1280,3)
-        #   numpy:           = np.zeros((720,1280,3))  # HWC
-        #   torch:           = torch.zeros(16,3,720,1280)  # BCHW
-        #   multiple:        = [Image.open('image1.jpg'), Image.open('image2.jpg'), ...]  # list of images
-
-        p = next(self.model.parameters())  # for device and type
-        if isinstance(imgs, torch.Tensor):  # torch
-            return self.model(imgs.to(p.device).type_as(p), augment, profile)  # inference
-
-        # Pre-process
-        n, imgs = (len(imgs), imgs) if isinstance(imgs, list) else (1, [imgs])  # number of images, list of images
-        shape0, shape1 = [], []  # image and inference shapes
-        for i, im in enumerate(imgs):
-            im = np.array(im)  # to numpy
-            if im.shape[0] < 5:  # image in CHW
-                im = im.transpose((1, 2, 0))  # reverse dataloader .transpose(2, 0, 1)
-            im = im[:, :, :3] if im.ndim == 3 else np.tile(im[:, :, None], 3)  # enforce 3ch input
-            s = im.shape[:2]  # HWC
-            shape0.append(s)  # image shape
-            g = size / max(s)  # gain
-            shape1.append([y * g for y in s])
-            imgs[i] = im  # update
-
-        x = [letterbox(im, new_shape=shape, auto=False)[0] for im, shape in zip(imgs, shape1, strict=True)]  # pad
-        x = np.stack(x, 0)  # Ensure x is a NumPy array
-        x = np.ascontiguousarray(cast(np.ndarray, x).transpose((0, 3, 1, 2)))  # BHWC to BCHW
-        x = torch.from_numpy(x).to(p.device).type_as(p) / 255.0  # uint8 to fp16/32
-
-        # Inference
-        with torch.no_grad():
-            y = self.model(x, augment, profile)[0]  # forward
-
-        y = non_max_suppression(y, conf_thres=self.conf, iou_thres=self.iou)  # NMS
-
-        # Post-process
-        for i in range(n):
-            scale_coords(shape1[i], y[i][:, :4], shape0[i])  # Pass shape1[i] as tuple
-
-        return Detections(imgs, y, self.names).tolist()
 
 
 class Detections:

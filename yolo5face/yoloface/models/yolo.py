@@ -8,7 +8,6 @@ from torch import nn
 from yolo5face.yoloface.models.common import (
     C3,
     SPP,
-    AutoShape,
     Bottleneck,
     BottleneckCSP,
     Concat,
@@ -20,7 +19,6 @@ from yolo5face.yoloface.models.common import (
 )
 from yolo5face.yoloface.utils.autoanchor import check_anchor_order
 from yolo5face.yoloface.utils.general import make_divisible
-from yolo5face.yoloface.utils.torch_utils import copy_attr
 
 
 class Detect(nn.Module):
@@ -108,12 +106,6 @@ class Model(nn.Module):
             x = m(x)
             y.append(x if m.i in self.save else None)
         return x
-
-    def autoshape(self) -> AutoShape:  # add autoShape module
-        print("Adding autoShape... ")
-        m = AutoShape(self)  # wrap model
-        copy_attr(m, self, include=("yaml", "nc", "hyp", "names", "stride"), exclude=())  # copy attributes
-        return m
 
 
 def parse_model(d: dict, ch: list[int]) -> tuple[nn.Sequential, list[int]]:  # model_dict, input_channels(3)

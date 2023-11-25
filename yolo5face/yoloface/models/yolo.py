@@ -1,9 +1,8 @@
-import math
 from copy import deepcopy
 from pathlib import Path
 
 import torch
-import yaml  # for torch hub
+import yaml
 from torch import nn
 
 from yolo5face.yoloface.models.common import (
@@ -100,12 +99,8 @@ class Model(nn.Module):
             m.anchors /= m.stride.view(-1, 1, 1)
             check_anchor_order(m)
             self.stride = m.stride
-            self._initialize_biases()  # only run once
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.forward_once(x)  # single-scale inference, train
-
-    def forward_once(self, x: torch.Tensor) -> torch.Tensor:
         y: list[torch.Tensor] = []  # outputs
         for m in self.model:
             if m.f != -1:
@@ -113,24 +108,6 @@ class Model(nn.Module):
             x = m(x)
             y.append(x if m.i in self.save else None)
         return x
-
-    def _initialize_biases(
-        self,
-        cf: torch.Tensor | None = None,
-    ) -> None:  # initialize biases into Detect(), cf is class frequency
-        # https://arxiv.org/abs/1708.02002 section 3.3
-        m = self.model[-1]  # Detect() module
-        for mi, s in zip(m.m, m.stride, strict=True):  # from
-            b = mi.bias.view(m.na, -1)  # conv.bias(255) to (3,85)
-            b.data[:, 4] += math.log(8 / (640 / s) ** 2)  # obj (8 objects per 640 image)
-            b.data[:, 5:] += math.log(0.6 / (m.nc - 0.99)) if cf is None else torch.log(cf / cf.sum())  # cls
-            mi.bias = torch.nn.Parameter(b.view(-1), requires_grad=True)
-
-    def _print_biases(self) -> None:
-        m = self.model[-1]  # Detect() module
-        for mi in m.m:  # from
-            b = mi.bias.detach().view(m.na, -1).T  # conv.bias(255) to (3,85)
-            print(("%6g Conv2d.bias:" + "%10.3g" * 6) % (mi.weight.shape[1], *b[:5].mean(1).tolist(), b[5:].mean()))
 
     def autoshape(self) -> AutoShape:  # add autoShape module
         print("Adding autoShape... ")

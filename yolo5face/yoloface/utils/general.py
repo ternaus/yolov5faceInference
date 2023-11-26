@@ -12,7 +12,7 @@ MAX_NMS_COMPARISONS = 3000
 
 def check_img_size(img_size: int, s: int = 32) -> int:
     # Verify img_size is a multiple of stride s
-    return make_divisible(img_size, s)  # ceil gs-multiple
+    return make_divisible(img_size, s)
 
 
 def make_divisible(x: int, divisor: int) -> int:

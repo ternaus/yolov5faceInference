@@ -31,7 +31,7 @@ test_images = {
         "gcp_path": "gs://monday-frontend-test.appspot.com/test/images/user_id/13.jpg",
         "faces": [
             {
-                "box": [353, 128, 467, 278],
+                "box": [353, 128, 467, 277],
                 "keypoints": [[392, 185], [442, 186], [420, 219], [390, 230], [438, 232]],
             },
             {
